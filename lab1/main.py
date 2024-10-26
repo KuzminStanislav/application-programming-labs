@@ -31,13 +31,14 @@ def get_codes(data: str) -> list[str]:
     :return: list of codes
     """
     pattern_for_split = r'\d+\)\n'
-    split_data = re.split(pattern_for_split, data, maxsplit=0)
+    split_data = re.split(pattern_for_split, data)
 
     pattern = r'\+7 927\d{7}'
-    found_data = list()
+    found_data = []
+
     for codes in split_data:
-        if re.search(pattern, codes):
-            found_data.append(codes)
+        if re.findall(pattern, codes):
+            found_data.extend(re.findall(pattern, codes))
     return found_data
 
 def print_codes(found_data: list[str]) -> None:
