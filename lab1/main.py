@@ -1,6 +1,7 @@
 import argparse
 import re
 
+
 def get_name_of_file() -> str:
     """
     Getting filename
@@ -11,6 +12,7 @@ def get_name_of_file() -> str:
     args = parser.parse_args()
     return args.filename
 
+
 def read_file(filename: str) -> str:
     """
     Getting data from file
@@ -20,9 +22,9 @@ def read_file(filename: str) -> str:
     try:
         with open(filename, "r", encoding='utf-8') as file:
             return file.read()
-    except FileNotFoundError:
-        print(f"Error: '{filename}' is not found.")
-        exit(1)
+    except:
+        raise FileExistError("File doesn't exist")
+
 
 def get_codes(data: str) -> list[str]:
     """
@@ -30,32 +32,38 @@ def get_codes(data: str) -> list[str]:
     :param data: original data
     :return: list of codes
     """
-    pattern_for_split = r'\d+\)\n'
+    pattern_for_split = r'\d+[)+]\n'
     split_data = re.split(pattern_for_split, data)
-
-    pattern = r'\+7 927\d{7}'
+    pattern = r'\+7 927[-\s]?\d{3}[-\s]?\d{2}[-\s]?\d{2}'
     found_data = []
-
-    for codes in split_data:
-        if re.findall(pattern, codes):
-            found_data.extend(re.findall(pattern, codes))
+    for profiles in split_data:
+        profiles = profiles.strip()
+        codes = re.findall(pattern, profiles)
+        if codes:
+            found_data.append((profiles, codes[0]))
     return found_data
 
-def print_codes(found_data: list[str]) -> None:
+
+def print_codes(found_data: list[tuple[str, str]]) -> None:
     """
     Printing list
     :param found_data: final list of codes
     :return: None
     """
-    for codes in found_data:
-        print(codes)
-    print()
+    for profiles, codes in found_data:
+        print(profiles)
+        print()
+
 
 def main():
-    filename = get_name_of_file()
-    data: str = read_file(filename)
-    found_data = get_codes(data)
-    print_codes(found_data)
+    try:
+        filename = get_name_of_file()
+        data = read_file(filename)
+        found_data = get_codes(data)
+        print_codes(found_data)
+    except Exception as e:
+        print(e)
+
 
 if __name__ == "__main__":
     main()
