@@ -1,60 +1,76 @@
 import argparse
-import re
+import csv
+import os
+from icrawler.builtin import GoogleImageCrawler 
+from Iterator import SimpleIterator
 
-def get_name_of_file() -> str:
+def arg_pars() -> tuple:
     """
-    Getting filename
-    :return: name of file
-    """
-    parser = argparse.ArgumentParser()
-    parser.add_argument('filename', type=str, help='input name of your file')
-    args = parser.parse_args()
-    return args.filename
-
-def read_file(filename: str) -> str:
-    """
-    Getting data from file
-    :param filename: filename
-    :return: file data
+    Parsing keyword from command promp 
+    :return: args 
     """
     try:
-        with open(filename, "r", encoding='utf-8') as file:
-            return file.read()
+        parser = argparse.ArgumentParser()
+        parser.add_argument('keyword', type = str, help = 'Keyword for searching')
+        parser.add_argument('save_dir_path', type = str, help = 'Path to directory for saving images')
+        parser.add_argument('path', type = str, help = 'Path to annotation file')
+        args = parser.parse_args()
+        return args
     except:
-        raise FileExistError("File doesn't exist")
+        raise SyntaxError("Invalid data")
 
-def get_codes(data: str) -> list[str]:
+def image_downloader(keyword: str, dir_path: str) -> None:
     """
-    Compilating list of codes
-    :param data: original data
-    :return: list of codes
+    Downloading images from Google using keyword
+    :param keyword: word that we need to found
+    :param dir_path: path to our directory
     """
-    pattern_for_split = r'\d+[)+]\n'
-    split_data = re.split(pattern_for_split, data)
-    pattern = r'\+7 927[-\s]?\d{3}[-\s]?\d{2}[-\s]?\d{2}'
-    found_data = []
-    for profiles in split_data:
-        profiles = profiles.strip()
-        codes = re.findall(pattern, profiles)
-        if codes:
-            found_data.append((profiles, codes))
-    return found_data
+    google_crawler = GoogleImageCrawler(storage={'root_dir': dir_path})
+    google_crawler.crawl(keyword = keyword, max_num = 50)
 
-def print_codes(found_data: list[tuple[str, str]]) -> None:
+def get_dir_files(dir_path: str) -> list:
     """
-    Printing list
-    :param found_data: final list of codes
-    :return: None
+    Finding names of files in directory
+    :param dir_path: path to our directory
+    :return: list of file names 
     """
-    for profiles, codes in found_data:
-        print(profiles)
-        print()
+    try:
+        paths_to_img = []
+        for root, dirs, files in os.walk(dir_path):
+            for file in files:
+                paths_to_img.append(os.path.join(root, file))
+            return paths_to_img
+    except:
+        raise NotADirectoryError("Invalid directory")
 
-def main():
-    filename = get_name_of_file()
-    data = read_file(filename)
-    found_data = get_codes(data)
-    print_codes(found_data)
+def make_annot(annot_path: str, files: list) -> None:
+    """
+    Making annotation 
+    :param annot_path: path to annotation
+    :param files: list of files
+    """
+    cur_dir = os.path.dirname(annot_path)
+    with open(annot_path, mode = 'w', newline= '', encoding = 'utf-8') as file:
+        writer = csv.writer(file)
+        writer.writerow(["Absolute path", "Relative path"])  
+            
+        for img_file in files:
+            abs_path = os.path.abspath(img_file)  
+            rel_path = os.path.relpath(img_file, cur_dir)  
+            writer.writerow([abs_path, rel_path])
+
 
 if __name__ == "__main__":
-    main()
+    try:
+        args = arg_pars()
+        keyword = args.keyword
+        save_path = args.save_dir_path
+        annot_path = args.path
+        image_downloader(keyword, save_path)
+        downloaded_files = get_dir_files(save_path)
+        make_annot(annot_path, downloaded_files)
+        iterator = SimpleIterator(annot_path)
+        for i in iterator:
+            print(i)
+    except Exception as e:
+        print(e)
