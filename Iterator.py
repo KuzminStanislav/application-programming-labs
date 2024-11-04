@@ -11,7 +11,7 @@ class SimpleIterator:
             return self
 
         def __next__(self) -> str:
-            if self.counter < self.lim:
+            if self.counter <= self.lim:
                 next_element = self.path_list[self.counter]
                 self.counter += 1
                 return next_element
