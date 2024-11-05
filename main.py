@@ -2,7 +2,7 @@ from parser import arg_pars
 from get_files import image_downloader
 from get_files import get_dir_files
 from make_annotation import make_annot
-from icrawler.builtin import GoogleImageCrawler 
+
 from Iterator import SimpleIterator
 
 if __name__ == "__main__":
