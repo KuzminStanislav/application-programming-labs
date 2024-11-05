@@ -1,9 +1,8 @@
-from parser import arg_pars
-from get_files import image_downloader
-from get_files import get_dir_files
-from make_annotation import make_annot
-
 from Iterator import SimpleIterator
+from get_files import image_downloader
+from make_annotation import get_dir_files
+from make_annotation import make_annot
+from parser import arg_pars
 
 if __name__ == "__main__":
     try:
