@@ -1,20 +1,20 @@
-from Iterator import SimpleIterator
-from get_files import image_downloader
-from make_annotation import get_dir_files
-from make_annotation import make_annot
-from parser import arg_pars
+from arg_pars import get_parse
+from process_image import *
+from process_hist import *
 
-if __name__ == "__main__":
+if __name__ == '__main__':
+    img_path, save_path = get_parse()  
     try:
-        args = arg_pars()
-        keyword = args.keyword
-        save_path = args.save_dir_path
-        annot_path = args.path
-        image_downloader(keyword, save_path)
-        downloaded_files = get_dir_files(save_path)
-        make_annot(annot_path, downloaded_files)
-        iterator = SimpleIterator(annot_path)
-        for i in iterator:
-            print(i)
+        img = read_image(img_path)
+        width, height = get_size(img)
+        print("Size of image is {}x{}".format(width, height))
+
+        hist = make_hist(img)
+        print_hist(hist)
+
+        invert_img = invert(img)
+        print_differences(img, invert_img)
+
+        save_data(save_path, invert_img)
     except Exception as e:
         print(e)
