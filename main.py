@@ -1,20 +1,23 @@
-from arg_pars import get_parse
-from process_image import *
-from process_hist import *
+import parser as arg_parse
+import process_df as *
+import process_hist as *
 
-if __name__ == '__main__':
-    img_path, save_path = get_parse()  
+if __name__ == "__main__":
+    csv_path = arg_parse()
     try:
-        img = read_image(img_path)
-        width, height = get_size(img)
-        print("Size of image is {}x{}".format(width, height))
+        data_frame = make_dataframe(csv_path)
+        add_columns(data_frame)
+        print(data_frame, "\n\n")
 
-        hist = make_hist(img)
-        print_hist(hist)
+        stat = get_stat_info(data_frame)
+        print(stat, "\n\n")
 
-        invert_img = invert(img)
-        print_differences(img, invert_img)
+        sorted = sorted_df(data_frame, 1000, 1000)
+        print(sorted, "\n\n")
 
-        save_data(save_path, invert_img)
+        final_data_frame = add_area_column(data_frame)
+        print(final_data_frame, "\n\n")
+
+        make_hist(final_data_frame)
     except Exception as e:
-        print(e)
+        print(f"Program has failed: {e}")
