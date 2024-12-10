@@ -1,7 +1,7 @@
 import os
 import sys
 
-from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QLabel, QFileDialog, QVBoxLayout
+from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QLabel, QFileDialog, QVBoxLayout, QMessageBox
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
 
@@ -37,11 +37,11 @@ class MainWindow(QMainWindow):
         if os.path.exists(image_path):
             pixmap = QPixmap(image_path)
             if pixmap.isNull():
-                print("Error: Can't download image")
+                self.show_error_message("Error", "Can't load image.")
                 return None
             return pixmap
         else:
-            print("Error: Can't find file")
+            self.show_error_message("Error", "Can't find file!")
             return None
 
     def show_image(self, image_path: str, annotation: str) -> None:
@@ -73,10 +73,10 @@ class MainWindow(QMainWindow):
                 image_path, annotation = next(self.image_iterator)
                 self.show_image(image_path, annotation)
             except StopIteration:
-                print("No more images to show")
+                self.show_info_message("Info", "No more images!")
                 self.load_button.show()
             except Exception as e:
-                print(f"Error: {e}")    
+                self.show_error_message("Error", str(e)) 
 
     def keyPressEvent(self, event) -> None:
         """
