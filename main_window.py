@@ -37,11 +37,11 @@ class MainWindow(QMainWindow):
         if os.path.exists(image_path):
             pixmap = QPixmap(image_path)
             if pixmap.isNull():
-                self.show_error_message("Error", "Can't load image.")
+                QMessageBox.critical(self, "Error!", "Can't load image!", QMessageBox.Ok)
                 return None
             return pixmap
         else:
-            self.show_error_message("Error", "Can't find file!")
+            QMessageBox.critical(self, "Error", "Can't find file!", QMessageBox.Ok)
             return None
 
     def show_image(self, image_path: str, annotation: str) -> None:
@@ -73,10 +73,10 @@ class MainWindow(QMainWindow):
                 image_path, annotation = next(self.image_iterator)
                 self.show_image(image_path, annotation)
             except StopIteration:
-                self.show_info_message("Info", "No more images!")
+                QMessageBox.information(self, "Info", "No more images!")
                 self.load_button.show()
             except Exception as e:
-                self.show_error_message("Error", str(e)) 
+                QMessageBox.critical(self, "Error!", str(e), QMessageBox.Ok) 
 
     def keyPressEvent(self, event) -> None:
         """
